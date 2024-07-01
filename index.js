@@ -1,22 +1,32 @@
-require('dotenv').config();
 const express = require('express');
 const app = express();
 app.use(express.json());
 const bodyParser = require('body-parser');
-const connection = require('./connection/db.js')
-
-//routes
-const user=require('./Auth/routes/authRoute.js');
-
+const connectDB = require('./connection/db');
+const dotenv = require ('dotenv');
 const PORT = process.env.PORT;
+
+const user=require('./auth/routes/auth.js');
+
+// Load environment variables from .env file
+dotenv.config();
+
+// Connect to MongoDB
+connectDB();
 
 app.get('/', (req, res) => {
   res.send('Hello, world!');
 });
+
+//App run
+app.get('/health', async (req, res)=>{
+    res.send('App is running...');
+});
+
 app.use(bodyParser.json());
 
 app.listen(PORT, () => {
     console.log(`Server is running at http://localhost:${PORT}`);
 });
 
-app.use('/api/user', user);
+app.use('/api/user',user);

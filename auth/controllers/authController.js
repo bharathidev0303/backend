@@ -2,61 +2,54 @@ const User = require('../../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
+//Create a new user
+const register = async (req, res)=> {
+    let  {name, email, password, mobileNumber } = req.body;
 
-exports.register = async (req, res) => {
-    const { name, email, password, mobileNumber } = req.body;
+    // return res.json({name: name, email: email, password: password, mobileNumber});
+    //validation for required fields
 
-
-    // Validate required fields
-    if (!name || !email || !password || !mobileNumber) {
-        return res.status(400).json({ msg: 'All fields are required' });
-    }
-
+    if(!name || !email || !password || !mobileNumber){
+        return res.status(400).json({msg: 'All fields are required'});
+    } 
     try {
-        // Initialize an object to collect errors
-        let errors = {};
 
-        // Check if the email already exists
-        let user = await User.findOne({ email });
-        console.log(user);
-        if (user) {
-            errors.email = "Email already exists";
-        }
-
-        // Check if the mobile number already exists
-        let num = await User.findOne({ mobileNumber });
-        if (num) {
-            errors.mobileNumber = "Mobile number already exists";
-        }
-
-        if (Object.keys(errors).length > 0) {
-
-            return res.status(400).json({ msg: errors });
-        }
-        else {
-            // Create a new user
-            user = new User({ name, email, password, mobileNumber });
-
-            // Hash the password
-            const salt = await bcrypt.genSalt(10);
-            user.password = await bcrypt.hash(password, salt);
-
-            // Save the user to the database
-            await user.save();
-
-            // Return success response
-            res.status(200).json({ user, msg: 'User Registered successfully' });
-        }
-
-
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ msg: 'Server Error', err });
+     //Validation for existing email
+    let user = await User.findOne({email});
+    var err= {};
+    if(user){
+        err.email ="Email already exists";
     }
+
+    //validation for mobileNumber 
+    let num = await User.findOne({mobileNumber});
+    if(num){
+        err.mobile ="Mobile already exists";
+    }
+
+    if(err){
+        return res.status(400).json({msg: err});
+    }
+    
+    //Create a new user 
+    user = new User({name, email, password, mobileNumber});
+
+
+    //hash the password
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+
+    await user.save();
+    res.status(200).json({user, msg: 'User Registered successfully'});
+    } catch(err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+
 };
 
 
-exports.login = async (req, res) => {
+const login = async (req, res) => {
 
     const { username, password } = req.body;
 
@@ -92,3 +85,5 @@ exports.login = async (req, res) => {
     }
 
 };
+
+module.exports = {register, login};
