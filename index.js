@@ -7,6 +7,7 @@ const PORT = process.env.PORT;
 
 const user=require('./auth/routes/authRoute.js');
 
+
 // Load environment variables from .env file
 dotenv.config();
 
