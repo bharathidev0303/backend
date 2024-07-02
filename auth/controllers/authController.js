@@ -2,19 +2,24 @@ const User = require('../../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
+const userService = require('../Services/userServices.js');
 
-    //Create a new user
-    exports.register = async (req, res)=> {
 
-    const  {firstName, lastName, email, password, mobileNumber, role, gender, dateOfBirth, termsAndCondition } = req.body;
 
-           
+
+//Create a new user
+exports.register = async (req, res) => {
+
+    const { firstName, lastName, email, password, mobileNumber, role, gender, dateOfBirth, termsAndCondition } = req.body;
+
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
     }
 
-        const fileds={ firstName,
+    const fileds = {
+        firstName,
         lastName,
         email,
         password,
@@ -22,9 +27,10 @@ const { validationResult } = require('express-validator');
         role,
         gender,
         dateOfBirth,
-        termsAndCondition};
+        termsAndCondition
+    };
 
-// return res.json(fileds);
+    // return res.json(fileds);
     //validation for required fields
 
     // if(!firstName || lastName || !email || !password || !mobileNumber || !role || !gender || !dateOfBirth || !termsAndCondition){
@@ -32,31 +38,31 @@ const { validationResult } = require('express-validator');
     // } 
     try {
 
-     //Validation for existing email
-    let user = await User.findOne({email});
+        //Validation for existing email
+        let user = await User.findOne({ email });
 
-    if(user){
-        return res.status(400).json({ msg: 'User already exists' });
-    }
+        if (user) {
+            return res.status(400).json({ msg: 'User already exists' });
+        }
 
-    //validation for mobileNumber 
-    let num = await User.findOne({mobileNumber});
-    if(num){
-        return res.status(400).json({ msg: 'Mobile Number already exists' });
-    }
-    
-    //Create a new user 
-    user = new User({firstName, lastName, email, password, mobileNumber, role, gender, dateOfBirth, termsAndCondition});
+        //validation for mobileNumber 
+        let num = await User.findOne({ mobileNumber });
+        if (num) {
+            return res.status(400).json({ msg: 'Mobile Number already exists' });
+        }
+
+        //Create a new user 
+        user = new User({ firstName, lastName, email, password, mobileNumber, role, gender, dateOfBirth, termsAndCondition });
 
 
-    //hash the password
-    const salt = await bcrypt.genSalt(10);
-    user.password = await bcrypt.hash(password, salt);
+        //hash the password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
 
-    await user.save();
+        await user.save();
 
-    res.status(200).json({user, msg: 'User Registered successf ully'});
-    } catch(err) {
+        res.status(200).json({ user, msg: 'User Registered successf ully' });
+    } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
     }
@@ -67,37 +73,38 @@ const { validationResult } = require('express-validator');
 exports.login = async (req, res) => {
 
     const { username, password } = req.body;
-
     try {
         //validate the data is not null
         if (!username || !password) {
-            return res.status(400).json({ message: 'Please provide both username and password' });
+            return badRequestError(res, 'Please provide both username and password');
         }
 
         //check if user exists 
-        const user = await User.findOne({ email: username });
-
+        const user = await userService.getuserBycondition({ $or: [{ email: username }, { mobileNumber: username }] });
         if (!user) {
-            return res.status(401).json({ message: 'Invalid username' });
+            return badRequestError(res, 'Invalid username');
         }
 
         //check if password is correct
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid password' });
+            return badRequestError(res, 'Invalid password');
         }
 
-        const jwtSecret = process.env.JWT_SECRET;
+        const payload = { userId: "6683a2d2cabfd00466da5651", username: user.firstName };
 
         //create a json web token for authentication
-        const payload = { userId: user._id, username: user.username };
-        const token = jwt.sign(payload, jwtSecret, { expiresIn: '1h' });
+        var token = await userService.createToken(payload);
+        const refreshToken = await userService.createRefreshToken(payload);
 
-        res.status(200).json({ message: 'Login successful', token });
+        res.status(200).json({ token, refreshToken, message: 'Token created' });
 
     } catch (err) {
         return res.status(500).json({ message: 'Server Error', err });
     }
+
+
+
 
 };
 
@@ -108,7 +115,7 @@ exports.updateUser = async (req, res) => {
 
     const { firstName, lastName, email, mobileNumber, role, gender, dateOfBirth } = req.body;
 
-    
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -116,14 +123,14 @@ exports.updateUser = async (req, res) => {
 
     try {
         // let user = await User.findById(req.params.id);
-        console.log({Id:req.params.id});
-        const user = await User.findOne({_id:req.params.id},'-password -termsAndCondition');
+        
+        const user = await User.findOne({ _id: req.params.id }, '-password -termsAndCondition');
         // console.log("ddddd",user);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-       // Update fields only if they are present in the request body
+        // Update fields only if they are present in the request body
         if (firstName) user.firstName = firstName;
         if (lastName) user.lastName = lastName;
         if (email) user.email = email;
@@ -131,17 +138,10 @@ exports.updateUser = async (req, res) => {
         if (role) user.role = role;
         if (gender) user.gender = gender;
         if (dateOfBirth) user.dateOfBirth = dateOfBirth;
-            // user.firstName = firstName;
-            //  user.lastName = lastName;
-            //  user.email = email;
-            // user.mobileNumber = mobileNumber;
-            // user.role = role;
-            // user.gender = gender;
-            // user.dateOfBirth = dateOfBirth;
 
-          await user.save();
 
-        //let updatedUser = {firstName, lastName, email, mobileNumber, role, gender, dateOfBirth};
+        await user.save();
+
 
         res.json({ msg: 'User updated successfully', user });
 
@@ -157,7 +157,7 @@ exports.updateUser = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
     try {
-        let user = await User.findOne({_id:req.params.id},  '-password -termsAndCondition');
+        let user = await User.findOne({ _id: req.params.id }, '-password -termsAndCondition');
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }

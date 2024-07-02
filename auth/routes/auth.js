@@ -3,6 +3,7 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const { registerValidationRules } = require ('../../validator/userValidator');
 const { updateValidationRules} = require('../../validator/userValidator');
+const verifyToken = require('../../middleware/verifyToken');
 
 router.get('/', function (request, res, next) {
     res.json({
@@ -15,7 +16,7 @@ router.get('/', function (request, res, next) {
 //Regsiter, login, update and Getdetails
 router.post('/register', registerValidationRules(), authController.register);
 router.post('/login', authController.login);
-router.put('/updateUser/:id', updateValidationRules(), authController.updateUser);
+router.put('/updateUser',verifyToken, updateValidationRules(), authController.updateUser);
 router.get('/getUserById/:id', authController.getUserById);
 
 

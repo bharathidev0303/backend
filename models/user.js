@@ -12,7 +12,7 @@ const UserSchema = new mongoose.Schema({
         required: true,
     },
 
-       email: {
+    email: {
         type: String,
         required: true,
         unique: true
@@ -33,30 +33,35 @@ const UserSchema = new mongoose.Schema({
         required: true,
         default: 'user'
     },
-    gender : {
+    gender: {
         type: String,
         required: true,
         enum: ['Male', 'Female', 'Other']
     },
-    dateOfBirth : {
-        type: Date,
+    dateOfBirth: {
+        type: String,
         required: true
     },
 
-    termsAndCondition : {
+    termsAndCondition: {
         type: Boolean,
         required: true,
         default: false
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
     }
 
 
-});
+},
+    {
+        timestamps: true,
+        versionKey: false,
+        toObject: { virtuals: true },
+        toJSON: { virtuals: true }
+    }
 
-UserSchema.methods.comparePassword = async function(candidatePassword) {
+
+);
+
+UserSchema.methods.comparePassword = async function (candidatePassword) {
     return bcrypt.compare(candidatePassword, this.password);
 };
 
