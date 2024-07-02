@@ -3,7 +3,11 @@ const bcrypt = require('bcryptjs');
 
 const UserSchema = new mongoose.Schema({
 
-    name: {
+    firstName: {
+        type: String,
+        required: true,
+    },
+    lastName: {
         type: String,
         required: true,
     },
@@ -23,7 +27,32 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: true
+    },
+    role: {
+        type: String,
+        required: true,
+        default: 'user'
+    },
+    gender : {
+        type: String,
+        required: true,
+        enum: ['Male', 'Female', 'Other']
+    },
+    dateOfBirth : {
+        type: Date,
+        required: true
+    },
+
+    termsAndCondition : {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
+
 
 });
 
