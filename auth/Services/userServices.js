@@ -16,12 +16,10 @@ exports.getuserBycondition = async (condition) => {
 };
 exports.createToken = async (payload) => {
     try {
-        console.log("token_life",process.env.TOKEN_LIFE); 
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.TOKEN_LIFE });
-        console.log(token);
         return token;
     } catch (error) {
-        console.log(error);
+        
         throw new Error(error.message);
     }
 };
