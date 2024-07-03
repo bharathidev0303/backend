@@ -17,7 +17,7 @@ router.get('/', function (request, res, next) {
 router.post('/register', registerValidationRules(), authController.register);
 router.post('/login', authController.login);
 router.put('/updateUser',verifyToken, updateValidationRules(), authController.updateUser);
-router.get('/getUserById/:id', authController.getUserById);
+router.get('/getUserById',verifyToken, authController.getUserById);
 
 
 module.exports = router;

@@ -13,6 +13,8 @@ exports.getuserBycondition = async (condition) => {
     } else {
         return userdata;
     }
+
+
 };
 exports.createToken = async (payload) => {
     try {
@@ -33,3 +35,5 @@ exports.createRefreshToken = async (payload) => {
         throw new Error(error.message);
     }
 };
+
+
