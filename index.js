@@ -7,7 +7,12 @@ const dotenv = require('dotenv');
 const PORT = process.env.PORT;
 require('./globalFunctions/globalfunctions.js');
 const user = require('./auth/routes/auth.js');
-
+const cors = require('cors');
+app.use(cors({
+  origin: '*',
+  methods: 'GET, POST, PUT, DELETE',
+  allowedHeaders: 'Content-Type, Authorization, X-Requested-With'
+}));
 // Load environment variables from .env file
 require('dotenv').config();
 

@@ -1,10 +1,8 @@
 const User = require('../../models/user');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
+const sendEmail = require('../../utils/sendEmail.js');
 const userService = require('../Services/userServices.js');
-
-
 
 
 //Create a new user
@@ -137,4 +135,40 @@ exports.getUserById = async (req, res) => {
         console.error(err.message);
         res.status(500).send('Server Error');
     }
+};
+
+//forgot password
+exports.forgotPassword = async (req, res) => {
+
+    const email = req.body.email
+
+    if (!email) {
+        return badRequestError(res, 'Please provide email');
+    }
+
+    try {
+        let user = await userService.getuserBycondition({ email: email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+
+        }
+
+        //generate a random token
+        const payload = { userId: user._id, username: user.firstName };
+        var token = await userService.createToken(payload);
+
+        //send email with token
+        const resetUrl = `${process.env.CLIENT_URL}/resetPassword/${token}`;
+        await sendEmail(user.email, 'Forgot Password', `Click on the link to reset your password: ${resetUrl}`);
+        res.status(200).json({ message: 'Reset password link sent to your email' });
+
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
+
+
+
+
+
 };
