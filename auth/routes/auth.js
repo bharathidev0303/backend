@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const { registerValidationRules } = require('../../validator/userValidator');
-const { updateValidationRules } = require('../../validator/userValidator');
+const {updateValidationRules,registerValidationRules } = require('../../validator/userValidator');
 const verifyToken = require('../../middleware/verifyToken');
 
 router.get('/', function (request, res, next) {

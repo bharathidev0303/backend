@@ -27,8 +27,8 @@ unauthorizedError = function (message) {
     return createStatusCodeError(401, message);
 };
 
-badRequestError = function (res, message, code = 406) {
-    res.statusCode = code || 406;
+badRequestError = function (res, message, code = 404) {
+    res.statusCode = code || 404;
     return res.json({
         success: false,
         code: code,

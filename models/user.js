@@ -20,7 +20,8 @@ const UserSchema = new mongoose.Schema({
 
     password: {
         type: String,
-        required: true
+        required: true,
+        select:true
     },
 
     mobileNumber: {
@@ -36,7 +37,7 @@ const UserSchema = new mongoose.Schema({
     gender: {
         type: String,
         required: true,
-        enum: ['Male', 'Female', 'Other']
+        //enum: ['Male', 'Female', 'Other']
     },
     dateOfBirth: {
         type: String,
@@ -46,7 +47,8 @@ const UserSchema = new mongoose.Schema({
     termsAndCondition: {
         type: Boolean,
         required: true,
-        default: false
+        default: false,
+        select:true
     }
 
 

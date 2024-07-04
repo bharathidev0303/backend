@@ -21,7 +21,7 @@ const verifyToken = (req, res, next) => {
 
         req.userId = decoded.userId;
         const userData =await User.findById(decoded.userId);
-        console.log("userData",userData);
+        // console.log("userData",userData);
         if (!userData) {
             return res.status(401).json({ message: 'Unauthorized' });
         }

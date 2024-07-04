@@ -16,37 +16,15 @@ exports.register = async (req, res) => {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const fileds = {
-        firstName,
-        lastName,
-        email,
-        password,
-        mobileNumber,
-        role,
-        gender,
-        dateOfBirth,
-        termsAndCondition
-    };
-
-    // return res.json(fileds);
-    //validation for required fields
-
-    // if(!firstName || lastName || !email || !password || !mobileNumber || !role || !gender || !dateOfBirth || !termsAndCondition){
-    //     return res.status(400).json({msg: 'All fields are required'});
-    // } 
+    
     try {
 
         //Validation for existing email
-        let user = await User.findOne({ email });
-
+       
+        let user= await userService.getuserBycondition({ $or: [{ email }, { mobileNumber }] });
+        
         if (user) {
             return res.status(400).json({ msg: 'User already exists' });
-        }
-
-        //validation for mobileNumber 
-        let num = await User.findOne({ mobileNumber });
-        if (num) {
-            return res.status(400).json({ msg: 'Mobile Number already exists' });
         }
 
         //Create a new user 
@@ -109,10 +87,7 @@ exports.login = async (req, res) => {
 //Update User Details by ID
 
 exports.updateUser = async (req, res) => {
-
-
     const { firstName, lastName, email, mobileNumber, role, gender, dateOfBirth } = req.body;
-
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -120,30 +95,25 @@ exports.updateUser = async (req, res) => {
     }
 
     try {
-        // let user = await User.findById(req.params.id);
-
-        const user = await User.findOne({ _id: req.params.id }, '-password -termsAndCondition');
-        // console.log("ddddd",user);
+        // console.log(" req.params.id",  req.userId)
+        const user = await userService.getuserBycondition({ _id: req.userId }, '-password -termsAndCondition');
+        //console.log(" user", user);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Update fields only if they are present in the request body
-        if (firstName) user.firstName = firstName;
-        if (lastName) user.lastName = lastName;
-        if (email) user.email = email;
-        if (mobileNumber) user.mobileNumber = mobileNumber;
-        if (role) user.role = role;
-        if (gender) user.gender = gender;
-        if (dateOfBirth) user.dateOfBirth = dateOfBirth;
+        // Define an object with fields that can be updated
+        const fieldsToUpdate = { firstName, lastName, email, mobileNumber, role, gender, dateOfBirth };
 
+        // Update fields only if they are present in the request body
+        for (let key in fieldsToUpdate) {
+            if (fieldsToUpdate[key] !== undefined) {
+                user[key] = fieldsToUpdate[key];
+            }
+        }
 
         await user.save();
-
-
         res.json({ msg: 'User updated successfully', user });
-
-
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
@@ -155,7 +125,7 @@ exports.updateUser = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
     try {
-        let user = await User.findOne({ _id: req.params.id }, '-password -termsAndCondition');
+        let user = await userService.getuserBycondition({_id:req.userId });
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }

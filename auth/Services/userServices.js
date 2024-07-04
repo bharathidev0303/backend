@@ -13,6 +13,8 @@ exports.getuserBycondition = async (condition) => {
     } else {
         return userdata;
     }
+
+
 };
 exports.getuserByID = async (id) => {
     const [error, userdata] = await to(
@@ -41,3 +43,5 @@ exports.createRefreshToken = async (payload) => {
         throw new Error(error.message);
     }
 };
+
+
