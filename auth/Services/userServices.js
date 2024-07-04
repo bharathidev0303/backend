@@ -16,6 +16,16 @@ exports.getuserBycondition = async (condition,projection) => {
 
 
 };
+exports.getuserByID = async (id) => {
+    const [error, userdata] = await to(
+        User.findById(id)
+    );
+    if (error) {
+        throw new Error(error.message);
+    } else {
+        return userdata;
+    }
+};
 exports.createToken = async (payload) => {
     try {
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: process.env.TOKEN_LIFE });

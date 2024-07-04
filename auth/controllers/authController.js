@@ -73,7 +73,7 @@ exports.login = async (req, res) => {
         var token = await userService.createToken(payload);
         const refreshToken = await userService.createRefreshToken(payload);
 
-        res.status(200).json({ token, refreshToken, message: 'Token created' });
+        res.status(200).json({ token, refreshToken, message: 'Login Successful' });
 
     } catch (err) {
         return res.status(500).json({ message: 'Server Error', err });
@@ -167,7 +167,37 @@ exports.forgotPassword = async (req, res) => {
         res.status(500).send('Server Error');
     }
 
+};
 
+exports.resetPassword = async (req, res) => {
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { newPassword } = req.body;
+
+    try {
+
+        let userId = req.userId;
+
+        //get user by id
+        const user = await userService.getuserByID(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        //hash the new password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+
+        await user.save();
+        res.status(200).json({ message: "Password Reset" });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server Error');
+    }
 
 
 

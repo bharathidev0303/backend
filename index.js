@@ -17,10 +17,10 @@ app.use(cors({
 require('dotenv').config();
 
 
-
 app.get('/', (req, res) => {
-  res.send('Hello, world!');
+  res.send('<h1 style="text-align:center; margin-top:300px; background:lightgreen; text-shadow: 2px 2px 5px grey;"> NODE JS API </h1>');
 });
+
 
 //App run
 app.get('/health', async (req, res) => {

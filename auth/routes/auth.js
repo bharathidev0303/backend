@@ -1,8 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
-const { registerValidationRules } = require ('../../validator/userValidator');
-const { updateValidationRules} = require('../../validator/userValidator');
+const {updateValidationRules,registerValidationRules } = require('../../validator/userValidator');
 const verifyToken = require('../../middleware/verifyToken');
 
 router.get('/', function (request, res, next) {
@@ -16,9 +15,10 @@ router.get('/', function (request, res, next) {
 //Regsiter, login, update and Getdetails
 router.post('/register', registerValidationRules(), authController.register);
 router.post('/login', authController.login);
-router.put('/updateUser',verifyToken, updateValidationRules(), authController.updateUser);
-router.get('/getUserById',verifyToken, authController.getUserById);
-router.post('/forgotPassword',authController.forgotPassword);
+router.put('/updateUser', verifyToken, updateValidationRules(), authController.updateUser);
+router.post('/forgotPassword', authController.forgotPassword);
+router.post('/reset-password',verifyToken, authController.resetPassword);
+
 
 
 
