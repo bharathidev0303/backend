@@ -87,7 +87,7 @@ exports.login = async (req, res) => {
 //Update User Details by ID
 
 exports.updateUser = async (req, res) => {
-    const { firstName, lastName, email, mobileNumber, role, gender, dateOfBirth } = req.body;
+    const { firstName, lastName, mobileNumber, dateOfBirth } = req.body;
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -96,14 +96,14 @@ exports.updateUser = async (req, res) => {
 
     try {
         // console.log(" req.params.id",  req.userId)
-        const user = await userService.getuserBycondition({ _id: req.userId }, '-password -termsAndCondition');
-        //console.log(" user", user);
+        const user = await userService.getuserBycondition({ _id: req.userId }, '-password -gender -role -email -termsAndCondition');
+       
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
         // Define an object with fields that can be updated
-        const fieldsToUpdate = { firstName, lastName, email, mobileNumber, role, gender, dateOfBirth };
+        const fieldsToUpdate = { firstName, lastName, mobileNumber, dateOfBirth };
 
         // Update fields only if they are present in the request body
         for (let key in fieldsToUpdate) {
@@ -125,11 +125,11 @@ exports.updateUser = async (req, res) => {
 
 exports.getUserById = async (req, res) => {
     try {
-        let user = await userService.getuserBycondition({_id:req.userId });
+        let user = await userService.getuserBycondition({_id:req.userId },'firstName lastName mobileNumber dateOfBirth');
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-
+      console.log(user);
         res.status(200).json(user);
     } catch (err) {
         console.error(err.message);

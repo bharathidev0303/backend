@@ -21,7 +21,7 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        select:true
+     
     },
 
     mobileNumber: {
@@ -42,13 +42,14 @@ const UserSchema = new mongoose.Schema({
     dateOfBirth: {
         type: String,
         required: true
+        
     },
 
     termsAndCondition: {
         type: Boolean,
         required: true,
-        default: false,
-        select:true
+        default: false
+        
     }
 
 

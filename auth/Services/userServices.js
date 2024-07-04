@@ -4,9 +4,9 @@ const jwt = require('jsonwebtoken');
 const { validationResult } = require('express-validator');
 const { to } = require('await-to-js');
 
-exports.getuserBycondition = async (condition) => {
+exports.getuserBycondition = async (condition,projection) => {
     const [error, userdata] = await to(
-        User.findOne(condition)
+        User.findOne(condition).select(projection)
     );
     if (error) {
         throw new Error(error.message);
