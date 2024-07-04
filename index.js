@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
 app.get('/health', async (req, res) => {
   res.send('App is running...');
 });
-
+  
 app.use(bodyParser.json());
 
 app.listen(PORT, () => {
